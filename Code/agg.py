@@ -189,7 +189,7 @@ class UNION(FedAdam):
                 cache_data[k] = tmp
             self.cache_data = cache_data
             with open(args.GAP_CACHE, 'wb') as f:
-                pickle.dump(cache_data, f)
+                pickle.dump(cache_data, f, protocol=pickle.HIGHEST_PROTOCOL)
             print('Dumping cache data to', args.GAP_CACHE)
         else:
             with open(args.GAP_CACHE, 'rb') as f:
@@ -242,8 +242,6 @@ class UNION(FedAdam):
         denom = (exp_avg_sq.sqrt() / math.sqrt(bias_correction2)).add(eps)
         step_size = self.args.LR / bias_correction1
         total_item_emb = total_item_emb.addcdiv(exp_avg, denom, value=-step_size)
-        if self.args.NORMALIZE:
-            total_item_emb = F.normalize(total_item_emb, p=2, dim=-1)
 
         total_uniformity = self.cal_uniformity(total_item_emb).reshape(-1, 1)
         more_than_one, two_cluster_labels = GapStatistics(total_uniformity, self.args, self.cache_data)
@@ -331,8 +329,6 @@ class MultiKrumUNION(UNION):
         denom = (exp_avg_sq.sqrt() / math.sqrt(bias_correction2)).add(eps)
         step_size = self.args.LR / bias_correction1
         total_item_emb = total_item_emb.addcdiv(exp_avg, denom, value=-step_size)
-        if self.args.NORMALIZE:
-            total_item_emb = F.normalize(total_item_emb, p=2, dim=-1)
 
         total_uniformity = self.cal_uniformity(total_item_emb).reshape(-1, 1)
         more_than_one, two_cluster_labels = GapStatistics(total_uniformity, self.args, self.cache_data)
@@ -430,8 +426,6 @@ class NormBoundUNION(UNION):
         denom = (exp_avg_sq.sqrt() / math.sqrt(bias_correction2)).add(eps)
         step_size = self.args.LR / bias_correction1
         total_item_emb = total_item_emb.addcdiv(exp_avg, denom, value=-step_size)
-        if self.args.NORMALIZE:
-            total_item_emb = F.normalize(total_item_emb, p=2, dim=-1)
 
         total_uniformity = self.cal_uniformity(total_item_emb).reshape(-1, 1)
         more_than_one, two_cluster_labels = GapStatistics(total_uniformity, self.args, self.cache_data)

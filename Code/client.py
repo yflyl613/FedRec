@@ -56,12 +56,10 @@ class Client:
                 contrastive_iid = contrastive_iid.to(self.device, non_blocking=True)
                 label = label.to(self.device, non_blocking=True)
                 total_item_emb = server_model.item_model(contrastive_iid)  # bz, 1+1+K, emb_dim
-                if self.args.NORMALIZE:
-                    total_item_emb = F.normalize(total_item_emb, p=2, dim=-1)
                 anchor = total_item_emb[:, 0, :]  # bz, emb_dim
                 candidate = total_item_emb[:, 1:, :]  # bz, 1+K, emb_dim
                 scores = torch.bmm(candidate, anchor.unsqueeze(dim=-1)).squeeze(dim=-1)  # bz, 1+K
-                contrastive_loss = F.cross_entropy(scores / self.args.TEMP, label)
+                contrastive_loss = F.cross_entropy(scores, label)
 
                 y_hat, bz_loss = server_model(uid, iid)
                 bz_acc = utils.acc(y_hat)
